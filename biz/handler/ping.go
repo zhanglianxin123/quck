@@ -4,6 +4,7 @@ package handler
 
 import (
 	"context"
+	"github.com/bytedance/gopkg/util/logger"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
@@ -15,4 +16,10 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 	c.JSON(consts.StatusOK, utils.H{
 		"message": "pong",
 	})
+}
+
+// WebHook
+func WebHook(ctx context.Context, c *app.RequestContext) {
+	body := c.Request.Body()
+	logger.Info(string(body))
 }

@@ -26,6 +26,12 @@ func main() {
 			Name:  "web",
 			Usage: "test ",
 			Action: func(context *cli.Context) error {
+				f, err := os.OpenFile("./output.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+				if err != nil {
+					panic(err)
+				}
+				defer f.Close()
+				hlog.SetOutput(f)
 				h := server.Default(
 				//server.WithHostPorts("127.0.0.1:8080"),
 				)
