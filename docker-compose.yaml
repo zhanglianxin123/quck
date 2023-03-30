@@ -1,0 +1,11 @@
+version: "1.0"
+services:
+  web:
+    container_name: quck
+    build: ./
+    ports:
+      - "6200:8888"
+    environment:
+      DB_HOST: 127.0.0.1
+      DB_NAME: root
+    command: /app/quck web

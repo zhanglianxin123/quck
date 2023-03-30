@@ -7,6 +7,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/urfave/cli/v2"
 	"os"
+	"quck/config"
 )
 
 func main() {
@@ -32,8 +33,9 @@ func main() {
 				}
 				defer f.Close()
 				hlog.SetOutput(f)
+				config.Init()
 				h := server.Default(
-				//server.WithHostPorts("127.0.0.1:8080"),
+					server.WithHostPorts(config.Config.Port),
 				)
 				//pprof.Register(h)
 				register(h)
