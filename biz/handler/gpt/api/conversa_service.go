@@ -4,18 +4,41 @@ package api
 
 import (
 	"context"
-
+	"encoding/json"
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
+	"io/ioutil"
+	"net/http"
 	api "quck/biz/model/gpt/api"
+	"quck/config"
+	"quck/model"
+	"strconv"
+	"strings"
+	"time"
 )
 
 // CreateConversaMethod .
 // @router /api/conversation [POST]
 func CreateConversaMethod(ctx context.Context, c *app.RequestContext) {
 	//var err error
-
-	resp := new(api.ConversaResp)
+	id := strconv.FormatInt(time.Now().Unix(), 10)
+	err := config.DB.Model(model.Conversa{}).Save(model.Conversa{
+		Id:      id,
+		Role:    "system",
+		Content: "You are a helpful assistant.",
+	}).Error
+	if err != nil {
+		hlog.Error(err)
+		c.JSON(consts.StatusInternalServerError, new(api.ConversaResp))
+	}
+	resp := api.ConversaResp{
+		Id: id,
+		Message: &api.Message{
+			Role:    "system",
+			Content: "You are a helpful assistant.",
+		},
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
@@ -30,8 +53,79 @@ func ConversaMethod(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+	var meassages []api.Message
+	err = config.DB.Model(model.Conversa{}).Where("id = ?", req.Id).Order("created_at ").Scan(&meassages).Error
+	if err != nil {
+		hlog.Error(err)
+		c.JSON(consts.StatusInternalServerError, new(api.ConversaResp))
+	}
+	if len(meassages) == 0 {
+		id := strconv.FormatInt(time.Now().Unix(), 10)
+		err := config.DB.Model(model.Conversa{}).Save(model.Conversa{
+			Id:      id,
+			Role:    "system",
+			Content: "You are a helpful assistant.",
+		}).Error
+		if err != nil {
+			hlog.Error(err)
+			c.JSON(consts.StatusInternalServerError, new(api.ConversaResp))
+		}
+
+		resp := api.ConversaResp{
+			Id: id,
+			Message: &api.Message{
+				Role:    "system",
+				Content: "You are a helpful assistant.",
+			},
+		}
+
+		c.JSON(consts.StatusOK, resp)
+	}
 
 	resp := new(api.ConversaResp)
 
 	c.JSON(consts.StatusOK, resp)
+}
+func RequtChatgpt(messages []api.Message) ChatgptReqponse {
+	apiKey := config.Config.ApiKey
+	client := &http.Client{}
+	jo, _ := json.Marshal(messages)
+	var data = strings.NewReader(string(jo))
+	req, err := http.NewRequest("GET", "https://api.chatgpt.com", data)
+	if err != nil {
+		// handle error
+	}
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+	resp, err := client.Do(req)
+	if err != nil {
+		hlog.Error(err)
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		hlog.Error(err)
+	}
+	var reqponse ChatgptReqponse
+	json.Unmarshal(body, &reqponse)
+	defer resp.Body.Close()
+	return reqponse
+}
+
+type ChatgptReqponse struct {
+	Id      string `json:"id"`
+	Object  string `json:"object"`
+	Created int    `json:"created"`
+	Model   string `json:"model"`
+	Usage   struct {
+		PromptTokens     int `json:"prompt_tokens"`
+		CompletionTokens int `json:"completion_tokens"`
+		TotalTokens      int `json:"total_tokens"`
+	} `json:"usage"`
+	Choices []struct {
+		Message struct {
+			Role    string `json:"role"`
+			Content string `json:"content"`
+		} `json:"message"`
+		FinishReason string `json:"finish_reason"`
+		Index        int    `json:"index"`
+	} `json:"choices"`
 }

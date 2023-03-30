@@ -14,6 +14,7 @@ type Cfg struct {
 	DBUsername string `env:"DB_USERNAME"`
 	DBPassword string `env:"DB_PASSWORD"`
 	DBDatabase string `env:"DB_DATABASE"`
+	ApiKey     string `env:"API_KEY"`
 }
 
 // setup env var
