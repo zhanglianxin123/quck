@@ -1,7 +1,9 @@
 package web_hook
 
 import (
+	"github.com/bytedance/gopkg/util/logger"
 	git "github.com/go-git/go-git/v5"
+	"os/exec"
 )
 
 const RELEASED = "released"
@@ -34,7 +36,12 @@ type Hook struct {
 
 func BuildProject(hook Hook) error {
 	if hook.Action == CREATED {
-		_, err := git.PlainClone("./git/"+hook.Repository.Name, false, &git.CloneOptions{
+		out, err := exec.Command("rm", "-rf", "./git/"+hook.Repository.Name).CombinedOutput()
+		if err != nil {
+			return err
+		}
+		logger.Info(out)
+		_, err = git.PlainClone("./git/"+hook.Repository.Name, false, &git.CloneOptions{
 			URL:        hook.Repository.HtmlUrl,
 			RemoteName: hook.Release.TagName,
 		})
@@ -43,6 +50,13 @@ func BuildProject(hook Hook) error {
 		if err != nil {
 			return err
 		}
+		go func() {
+			out, err := exec.Command("./build.sh", "./git/"+hook.Repository.Name+"/docker-compose.yaml").CombinedOutput()
+			if err != nil {
+				logger.Error(err)
+			}
+			logger.Info(string(out))
+		}()
 		//logger.Info(fmt.Sprintf("output:%s", response))
 	}
 	return nil
