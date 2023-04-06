@@ -1,11 +1,16 @@
 version: "1.0"
 services:
   web:
+    image: quck:1.0
     container_name: quck
     build: ./
     ports:
       - "6200:8888"
     environment:
-      DB_HOST: 127.0.0.1
+      DB_HOSTNAME: 172.22.31.173
+      DB_PORT: 3306
       DB_NAME: root
-    command: /app/quck web
+      DB_PASSWORD: lukoushang
+      DB_DATABASE: quck
+
+    command: /quck web

@@ -4,7 +4,9 @@ package handler
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/bytedance/gopkg/util/logger"
+	"quck/biz/services/web_hook"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/common/utils"
@@ -22,4 +24,16 @@ func Ping(ctx context.Context, c *app.RequestContext) {
 func WebHook(ctx context.Context, c *app.RequestContext) {
 	body := c.Request.Body()
 	logger.Info(string(body))
+	var hook web_hook.Hook
+	err := json.Unmarshal(body, &hook)
+	if err != nil {
+		logger.Error("Album hook content failed", err)
+		return
+	}
+	err = web_hook.BuildProject(hook)
+	if err != nil {
+		logger.Error("build project failed", err)
+		return
+	}
+
 }
