@@ -15,10 +15,6 @@ func main() {
 	app.Name = "quck"
 	app.Usage = "A quck tool project"
 	app.Version = "1.0"
-	// The default separator for multiple parameters is modified to ";"
-	//app.SliceFlagSeparator = ";"
-	//s := "abc"
-	//webFlag := cli.StringFlag{Name: "test", Usage: "web api", Destination: &s}
 
 	// Commands
 	app.Commands = []*cli.Command{
@@ -32,11 +28,9 @@ func main() {
 				}
 				defer f.Close()
 				hlog.SetOutput(f)
-				//config.Init()
 				h := server.Default(
 				//server.WithHostPorts(config.Config.Port),
 				)
-				//pprof.Register(h)
 				register(h)
 				h.Spin()
 				return nil
@@ -47,9 +41,5 @@ func main() {
 	if err != nil {
 		hlog.Info(err)
 	}
-
-	//h := server.Default(config.Option{F: func(o *config.Options) {
-	//	o.Addr = ":8808"
-	//}})
 
 }
