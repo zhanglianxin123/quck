@@ -1,7 +1,7 @@
 package web_hook
 
 import (
-	"github.com/bytedance/gopkg/util/logger"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	git "github.com/go-git/go-git/v5"
 	"os/exec"
 )
@@ -40,24 +40,21 @@ func BuildProject(hook Hook) error {
 		if err != nil {
 			return err
 		}
-		logger.Info(out)
+		hlog.Info(out)
 		_, err = git.PlainClone("./git/"+hook.Repository.Name, false, &git.CloneOptions{
 			URL:        hook.Repository.HtmlUrl,
 			RemoteName: hook.Release.TagName,
 		})
-		//cloneExec := fmt.Sprintf("git clone -b %s %s", hook.Release.TagName, hook.Repository.HtmlUrl)
-		//out, err := exec.Command(cloneExec).CombinedOutput()
 		if err != nil {
 			return err
 		}
 		go func() {
 			out, err := exec.Command("./build.sh", "./git/"+hook.Repository.Name+"/docker-compose.yaml").CombinedOutput()
 			if err != nil {
-				logger.Error(err)
+				hlog.Error(err)
 			}
-			logger.Info(string(out))
+			hlog.Info(string(out))
 		}()
-		//logger.Info(fmt.Sprintf("output:%s", response))
 	}
 	return nil
 }
