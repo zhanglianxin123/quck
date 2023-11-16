@@ -3,6 +3,7 @@ package web_hook
 import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/transport/ssh"
 	"os/exec"
 )
 
@@ -31,6 +32,7 @@ type Hook struct {
 		Name    string `json:"name"`
 		HtmlUrl string `json:"html_url"`
 		Url     string `json:"url"`
+		SshUrl  string `json:"ssh_url"`
 	} `json:"repository"`
 }
 
@@ -41,8 +43,15 @@ func BuildProject(hook Hook) error {
 			return err
 		}
 		hlog.Info(out)
+		privateKeyFile := "/root/.ssh/id_rsa"
+		publicKeys, err := ssh.NewPublicKeysFromFile("git", privateKeyFile, "")
+		if err != nil {
+			hlog.Error("generate publickeys failed: %s\n", err.Error())
+			return err
+		}
 		_, err = git.PlainClone("./git/"+hook.Repository.Name, false, &git.CloneOptions{
-			URL:        hook.Repository.HtmlUrl,
+			Auth:       publicKeys,
+			URL:        hook.Repository.SshUrl,
 			RemoteName: hook.Release.TagName,
 		})
 		if err != nil {

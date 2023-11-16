@@ -7,10 +7,8 @@ replace github.com/apache/thrift => github.com/apache/thrift v0.13.0
 require (
 	github.com/apache/thrift v0.0.0-00010101000000-000000000000
 	github.com/bytedance/gopkg v0.0.0-20220413063733-65bf48ffb3a7
-	github.com/caarlos0/env/v6 v6.10.1
 	github.com/cloudwego/hertz v0.6.1
 	github.com/go-git/go-git/v5 v5.6.1
-	github.com/jinzhu/gorm v1.9.16
 	github.com/urfave/cli/v2 v2.25.1
 )
 
@@ -28,13 +26,11 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
 	github.com/go-git/go-billy/v5 v5.4.1 // indirect
-	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/golang/protobuf v1.5.0 // indirect
 	github.com/henrylee2cn/ameda v1.4.10 // indirect
 	github.com/henrylee2cn/goutil v0.0.0-20210127050712-89660552f6f8 // indirect
 	github.com/imdario/mergo v0.3.13 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
-	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.9 // indirect
 	github.com/nyaruka/phonenumbers v1.0.55 // indirect

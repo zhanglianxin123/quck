@@ -1,7 +1,6 @@
 version: "1.0"
 services:
   web:
-    image: quck:1.0
     container_name: quck
     build: ./
     ports:
